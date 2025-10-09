@@ -1,0 +1,3 @@
+*.vault*
+*.*htpasswd*
+*.*env*

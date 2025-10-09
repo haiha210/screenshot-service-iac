@@ -1,0 +1,28 @@
+# EditorConfig (http://EditorConfig.org)
+
+root = true
+
+[*]
+charset = utf-8
+indent_size = 2
+indent_style = space
+trim_trailing_whitespace = true
+insert_final_newline = true
+spaces_around_brackets = true
+spaces_around_operators = true
+end_of_line = lf
+
+[*.{yaml,yml}]
+indent_size = 2
+
+[*.tf]
+indent_size = 2
+
+[*.json]
+indent_size = 2
+
+[{*.{py,md},Dockerfile}]
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false

@@ -1,0 +1,27 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/deploy/codedeploy
+permissions:
+  - object: /home/deploy/codedeploy
+    owner: deploy
+    group: deploy
+    pattern: "*"
+    mode: 775
+    type:
+      - file
+      - directory
+hooks:
+  BeforeInstall:
+    - location: hooks/1.pull-and-config.sh
+      runas: deploy
+  AfterInstall:
+    - location: hooks/2.build-and-deploy.sh
+      runas: deploy
+  ApplicationStart:
+    - location: hooks/3.start.sh
+      runas: deploy
+  ValidateService:
+    - location: hooks/4.validate.sh
+      runas: deploy
