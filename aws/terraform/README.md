@@ -254,7 +254,7 @@ Refer how to install [terraform](https://learn.hashicorp.com/tutorials/terraform
 - Values of variables for each environment
   - [ ] terraform.dev.tfvars
   - [ ] terraform.stg.tfvars
-  - [ ] terraform.prod.tfvars
+  - [ ] terraform.prd.tfvars
 
 ### Main
 

@@ -1,3 +1,3 @@
 project = "project"
-env     = "stg"
+env     = "prd"
 region  = "ap-southeast-1"

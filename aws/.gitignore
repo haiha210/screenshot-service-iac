@@ -1,3 +1,5 @@
 *.vault*
 *.*htpasswd*
 *.*env*
+terraform/envs/prd/4.backend/_variables.tf
+terraform/envs/prd/1.general/_variables.tf
