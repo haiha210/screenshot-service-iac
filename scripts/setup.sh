@@ -2,7 +2,7 @@
 set -x
 
 function Install_dependent-packages() {
-  sudo apt install wget curl unzip jq make -y
+  sudo apt install wget curl unzip jq make zip -y
 }
 
 

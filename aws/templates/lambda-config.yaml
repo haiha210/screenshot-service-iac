@@ -1,123 +1,13 @@
 functions:
-  # Screenshot Management Functions
-  - name: screenshot-create
-    handler: handlers/screenshots/create.handler
-    runtime: nodejs18.x
-    timeout: 60
-    memory_size: 512
-    description: Create a new screenshot from URL
-    api_path: /screenshots
-    http_method: POST
-    environment:
-      BUCKET_NAME: screenshots-storage-dev
-      TABLE_NAME: screenshots-metadata-dev
-      MAX_RETRIES: "3"
-
-  - name: screenshot-get
-    handler: handlers/screenshots/get.handler
-    runtime: nodejs18.x
-    timeout: 30
-    memory_size: 256
-    description: Get screenshot by ID
-    api_path: /screenshots/{id}
-    http_method: GET
-    environment:
-      BUCKET_NAME: screenshots-storage-dev
-      TABLE_NAME: screenshots-metadata-dev
-
-  - name: screenshot-list
-    handler: handlers/screenshots/list.handler
-    runtime: nodejs18.x
-    timeout: 30
-    memory_size: 256
-    description: List all screenshots
-    api_path: /screenshots
-    http_method: GET
-    environment:
-      TABLE_NAME: screenshots-metadata-dev
-      PAGE_SIZE: "20"
-
-  - name: screenshot-delete
-    handler: handlers/screenshots/delete.handler
-    runtime: nodejs18.x
-    timeout: 30
-    memory_size: 256
-    description: Delete screenshot by ID
-    api_path: /screenshots/{id}
-    http_method: DELETE
-    environment:
-      BUCKET_NAME: screenshots-storage-dev
-      TABLE_NAME: screenshots-metadata-dev
-
-  - name: screenshot-update
-    handler: handlers/screenshots/update.handler
-    runtime: nodejs18.x
-    timeout: 30
-    memory_size: 256
-    description: Update screenshot metadata
-    api_path: /screenshots/{id}
-    http_method: PUT
-    environment:
-      TABLE_NAME: screenshots-metadata-dev
-
   # Health Check
   - name: health-check
-    handler: handlers/health/check.handler
-    runtime: nodejs18.x
+    handler: app.handler
+    runtime: nodejs22.x
     timeout: 10
     memory_size: 128
     description: Health check endpoint
     api_path: /health
     http_method: GET
+    source_path: ../../../../lambdas/handlers/health
     environment:
       SERVICE_NAME: screenshots-service
-
-  # Image Processing Functions
-  - name: image-resize
-    handler: handlers/processing/resize.handler
-    runtime: python3.11
-    timeout: 120
-    memory_size: 1024
-    description: Resize screenshot images
-    api_path: /process/resize
-    http_method: POST
-    environment:
-      BUCKET_NAME: screenshots-storage-dev
-      MAX_WIDTH: "1920"
-      MAX_HEIGHT: "1080"
-
-  - name: image-compress
-    handler: handlers/processing/compress.handler
-    runtime: python3.11
-    timeout: 120
-    memory_size: 1024
-    description: Compress screenshot images
-    api_path: /process/compress
-    http_method: POST
-    environment:
-      BUCKET_NAME: screenshots-storage-dev
-      QUALITY: "85"
-
-  # Analytics Functions
-  - name: analytics-track
-    handler: handlers/analytics/track.handler
-    runtime: nodejs18.x
-    timeout: 30
-    memory_size: 256
-    description: Track screenshot usage
-    api_path: /analytics/track
-    http_method: POST
-    environment:
-      TABLE_NAME: analytics-events-dev
-      STREAM_NAME: analytics-stream-dev
-
-  - name: analytics-report
-    handler: handlers/analytics/report.handler
-    runtime: nodejs18.x
-    timeout: 60
-    memory_size: 512
-    description: Generate analytics report
-    api_path: /analytics/report
-    http_method: GET
-    environment:
-      TABLE_NAME: analytics-events-dev
