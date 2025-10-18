@@ -29,7 +29,7 @@ Refer how to install [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/
         aws configure --profile {{ project }}-default
             AWS Access Key ID: <your-access-key>
             AWS Secret Access Key: <your-secret-access-key>
-            Default region name: ap-northeast-1
+            Default region name: ap-southeast-1
             Default output format: json
       ```
 
@@ -47,7 +47,7 @@ Refer how to install [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/
       ```bash
       [profile {{ project }}-{{ env }}]
       output = json
-      region = ap-northeast-1
+      region = ap-southeast-1
       ```
 
     - Excuting `create-aws-sts.sh`
@@ -63,7 +63,7 @@ Refer how to install [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/
         aws configure --profile {{ project }}-{{ env }}
             AWS Access Key ID: <your-access-key>
             AWS Secret Access Key: <your-secret-access-key>
-            Default region name: ap-northeast-1
+            Default region name: ap-southeast-1
             Default output format: json
       ```
 
@@ -80,7 +80,7 @@ Refer how to install [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/
       ```bash
       [profile {{ project }}-{{ env }}]
       output = json
-      region = ap-northeast-1
+      region = ap-southeast-1
       ```
 
 #### 2.2 (Optional for Terraform) Create manually AWS S3 bucket, Dynamodb to store/lock IaC state and KMS Key to encrypt it
@@ -92,12 +92,12 @@ Refer how to install [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/
   ```
 
   ```bash
-  aws s3api create-bucket --bucket {{ project }}-{{ env }}-iac-state --region ap-northeast-1 --create-bucket-configuration LocationConstraint=ap-northeast-1 --profile {{ project }}-{{ env }}
-  aws s3api put-bucket-versioning --bucket {{ project }}-{{ env }}-iac-state --versioning-configuration Status=Enabled --region ap-northeast-1 --profile {{ project }}-{{ env }}
+  aws s3api create-bucket --bucket {{ project }}-{{ env }}-iac-state --region ap-southeast-1 --create-bucket-configuration LocationConstraint=ap-southeast-1 --profile {{ project }}-{{ env }}
+  aws s3api put-bucket-versioning --bucket {{ project }}-{{ env }}-iac-state --versioning-configuration Status=Enabled --region ap-southeast-1 --profile {{ project }}-{{ env }}
   aws s3api put-public-access-block \
       --bucket {{ project }}-{{ env }}-iac-state \
       --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true" \
-      --region ap-northeast-1 --profile {{ project }}-{{ env }}
+      --region ap-southeast-1 --profile {{ project }}-{{ env }}
   ```
 
 - [Dynamodb](https://docs.aws.amazon.com/cli/latest/reference/dynamodb/create-table.html)
@@ -109,16 +109,16 @@ Refer how to install [aws-cli](https://docs.aws.amazon.com/cli/latest/userguide/
       --key-schema AttributeName=LockID,KeyType=HASH \
       --billing-mode PAY_PER_REQUEST \
       --tags Key=Name,Value={{ project }}-{{ env }}-terraform-state-lock Key=Environment,Value={{ env }} \
-      --region ap-northeast-1 \
+      --region ap-southeast-1 \
       --profile {{ project }}-{{ env }}
   ```
 
 - Create [KMS Key](https://docs.aws.amazon.com/cli/latest/reference/kms/create-key.html) and [Alias](https://docs.aws.amazon.com/cli/latest/reference/kms/create-alias.html)
 
   ```bash
-  KMS_KEY_ID=$(aws kms create-key --description "Encrypt tfstate in s3 backend" --query "KeyMetadata.KeyId" --output text --profile {{ project }}-{{ env }} --region ap-northeast-1)
-  aws kms create-alias --alias-name alias/{{ project }}-{{ env }}-iac --target-key-id $KMS_KEY_ID --profile {{ project }}-{{ env }} --region ap-northeast-1
-  KMS_KEY_ARN=$(aws kms describe-key --key-id $KMS_KEY_ID --query "KeyMetadata.Arn" --output text --profile {{ project }}-{{ env }} --region ap-northeast-1) && echo "Terraform KMS Key ARN: \n" $KMS_KEY_ARN
+  KMS_KEY_ID=$(aws kms create-key --description "Encrypt tfstate in s3 backend" --query "KeyMetadata.KeyId" --output text --profile {{ project }}-{{ env }} --region ap-southeast-1)
+  aws kms create-alias --alias-name alias/{{ project }}-{{ env }}-iac --target-key-id $KMS_KEY_ID --profile {{ project }}-{{ env }} --region ap-southeast-1
+  KMS_KEY_ARN=$(aws kms describe-key --key-id $KMS_KEY_ID --query "KeyMetadata.Arn" --output text --profile {{ project }}-{{ env }} --region ap-southeast-1) && echo "Terraform KMS Key ARN: \n" $KMS_KEY_ARN
   ```
 
 #### Notes: You can use `pre-build.sh` to automatically execute all commands above instead (skip with region us-east-1)

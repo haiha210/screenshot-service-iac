@@ -99,3 +99,8 @@ override.tf.json
 
 *.pem
 *keypair*
+
+# Lambda deployment packages
+lambda-packages/
+*.zip
+!lambda-layer-*.zip  # Allow lambda layers if needed

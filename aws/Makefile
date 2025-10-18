@@ -2,12 +2,25 @@ SHELL:=/bin/bash
 ###################
 # For Terraform
 ###################
+# Project name
+PROJECT := screenshot-service
+
 #Set ENV & SERVICE
 .PHONY: set_env
 set_env:
 ifndef e
-$(error Error: ENV is undefined, please add to your command `e=dev or e=stg or e=prod or e=...`)
+$(error Error: ENV is undefined, please add to your command `e=dev or e=stg or e=prd or e=...`)
 endif
+
+.PHONY: set_profile
+set_profile: set_env
+ifndef p
+p := $(PROJECT)-$(e)
+endif
+
+.PHONY: check_profile
+check_profile: set_profile
+	@echo 'AWS Profile: "$(p)"'
 
 .PHONY: check_env
 check_env: set_env
@@ -139,139 +152,139 @@ unsymlink_all: check_env
 
 #Init commands
 .PHONY: init
-init: check_env check_service
+init: check_profile check_env check_service
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting init: \"$$service_path\" && \
-	terraform -chdir=$$service_path init
+	aws-vault exec $(p) -- terraform -chdir=$$service_path init
 
 .PHONY: init_upgrade
-init_upgrade: check_env check_service
+init_upgrade: check_profile check_env check_service
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting init upgrade: \"$$service_path\" && \
-	terraform -chdir=$$service_path init --upgrade
+	aws-vault exec $(p) -- terraform -chdir=$$service_path init --upgrade
 
 .PHONY: init_migrate
-init_migrate: check_env check_service
+init_migrate: check_profile check_env check_service
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting init migrate-state: \"$$service_path\" && \
-	terraform -chdir=$$service_path init -migrate-state
+	aws-vault exec $(p) -- terraform -chdir=$$service_path init -migrate-state
 
 .PHONY: init_all
-init_all: check_env
+init_all: check_profile check_env
 	@service_path=$$(ls -d terraform/envs/$(e)/*/) && \
 	for service in $$service_path; do \
 		echo Excuting init: \"$$service\" && \
-		terraform -chdir=$$service init; \
+		aws-vault exec $(p) -- terraform -chdir=$$service init; \
 	done
 
 
 #Plan/Apply commands
 .PHONY: plan
-plan: check_env check_service
+plan: check_profile check_env check_service
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting plan: \"$$service_path\" && \
-	terraform -chdir=$$service_path plan --var-file=../terraform.$(e).tfvars
+	aws-vault exec $(p) -- terraform -chdir=$$service_path plan --var-file=../terraform.$(e).tfvars
 
 .PHONY: plan_target
-plan_target: check_env check_service check_target
+plan_target: check_profile check_env check_service check_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting plan: \"$$service_path\" with target: \'$(t)\' && \
-	terraform -chdir=$$service_path plan --var-file=../terraform.$(e).tfvars --target '$(t)'
+	aws-vault exec $(p) -- terraform -chdir=$$service_path plan --var-file=../terraform.$(e).tfvars --target '$(t)'
 
 .PHONY: plan_all
-plan_all: check_env
+plan_all: check_profile check_env
 	@service_path=$$(ls -d terraform/envs/$(e)/*/) && \
 	for service in $$service_path; do \
 		echo Excuting plan: \"$$service\" && \
-		terraform -chdir=$$service plan --var-file=../terraform.$(e).tfvars; \
+		aws-vault exec $(p) -- terraform -chdir=$$service plan --var-file=../terraform.$(e).tfvars; \
 	done
 
 .PHONY: apply
-apply: check_env check_service
+apply: check_profile check_env check_service
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting apply: \"$$service_path\" && \
-	terraform -chdir=$$service_path apply --var-file=../terraform.$(e).tfvars
+	aws-vault exec $(p) -- terraform -chdir=$$service_path apply --var-file=../terraform.$(e).tfvars
 
 .PHONY: apply_target
-apply_target: check_env check_service check_target
+apply_target: check_profile check_env check_service check_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting apply: \"$$service_path\" with target: \'$(t)\' && \
-	terraform -chdir=$$service_path apply --var-file=../terraform.$(e).tfvars --target '$(t)'
+	aws-vault exec $(p) -- terraform -chdir=$$service_path apply --var-file=../terraform.$(e).tfvars --target '$(t)'
 
 .PHONY: apply_all
-apply_all: check_env
+apply_all: check_profile check_env
 	@service_path=$$(ls -d terraform/envs/$(e)/*/) && \
 	for service in $$service_path; do \
 		echo Excuting apply: \"$$service\" && \
-		terraform -chdir=$$service apply --var-file=../terraform.$(e).tfvars; \
+		aws-vault exec $(p) -- terraform -chdir=$$service apply --var-file=../terraform.$(e).tfvars; \
 	done
 
 
 #Plan/Destroy commands
 .PHONY: plan_destroy
-plan_destroy: check_env check_service
+plan_destroy: check_profile check_env check_service
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting plan destroy: \"$$service_path\" && \
-	terraform -chdir=$$service_path plan --var-file=../terraform.$(e).tfvars -destroy
+	aws-vault exec $(p) -- terraform -chdir=$$service_path plan --var-file=../terraform.$(e).tfvars -destroy
 
 .PHONY: plan_destroy_target
-plan_destroy_target: check_env check_service check_target
+plan_destroy_target: check_profile check_env check_service check_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting plan destroy: \"$$service_path\" with target: \'$(t)\' && \
-	terraform -chdir=$$service_path plan --var-file=../terraform.$(e).tfvars --target '$(t)' -destroy
+	aws-vault exec $(p) -- terraform -chdir=$$service_path plan --var-file=../terraform.$(e).tfvars --target '$(t)' -destroy
 
 .PHONY: plan_destroy_all
-plan_destroy_all: check_env
+plan_destroy_all: check_profile check_env
 	@service_path=$$(ls -dr terraform/envs/$(e)/*/) && \
 	for service in $$service_path; do \
 		echo Excuting plan destroy: \"$$service\" && \
-		terraform -chdir=$$service plan --var-file=../terraform.$(e).tfvars -destroy; \
+		aws-vault exec $(p) -- terraform -chdir=$$service plan --var-file=../terraform.$(e).tfvars -destroy; \
 	done
 
 .PHONY: destroy
-destroy: check_env check_service
+destroy: check_profile check_env check_service
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting destroy: \"$$service_path\" && \
-	terraform -chdir=$$service_path destroy --var-file=../terraform.$(e).tfvars
+	aws-vault exec $(p) -- terraform -chdir=$$service_path destroy --var-file=../terraform.$(e).tfvars
 
 .PHONY: destroy_target
-destroy_target: check_env check_service check_target
+destroy_target: check_profile check_env check_service check_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting destroy: \"$$service_path\" with target: \'$(t)\' && \
-	terraform -chdir=$$service_path destroy --var-file=../terraform.$(e).tfvars --target '$(t)'
+	aws-vault exec $(p) -- terraform -chdir=$$service_path destroy --var-file=../terraform.$(e).tfvars --target '$(t)'
 
 .PHONY: destroy_all
-destroy_all: check_env
+destroy_all: check_profile check_env
 	@service_path=$$(ls -dr terraform/envs/$(e)/*/) && \
 	for service in $$service_path; do \
 		echo Excuting destroy: \"$$service\" && \
-		terraform -chdir=$$service destroy --var-file=../terraform.$(e).tfvars; \
+		aws-vault exec $(p) -- terraform -chdir=$$service destroy --var-file=../terraform.$(e).tfvars; \
 	done
 
 
 #Other commands
 ##Recreate resource
 .PHONY: taint
-taint: check_env check_service check_target
+taint: check_profile check_env check_service check_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting taint resource: \"$$service_path\" with target: \'$(t)\' && \
-	terraform -chdir=$$service_path taint '$(t)'
+	aws-vault exec $(p) -- terraform -chdir=$$service_path taint '$(t)'
 
 .PHONY: untaint
-untaint: check_env check_service check_target
+untaint: check_profile check_env check_service check_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting untaint resource: \"$$service_path\" with target: \'$(t)\' && \
-	terraform -chdir=$$service_path untaint '$(t)'
+	aws-vault exec $(p) -- terraform -chdir=$$service_path untaint '$(t)'
 
 ##State of resource
 .PHONY: state_list
-state_list: check_env check_service
+state_list: check_profile check_env check_service
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting state list resource: \"$$service_path\" && \
-	terraform -chdir=$$service_path state list
+	aws-vault exec $(p) -- terraform -chdir=$$service_path state list
 
 .PHONY: state_show
-state_show: check_env check_service check_target
+state_show: check_profile check_env check_service check_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting state show resource: \"$$service_path\" with target: \'$(t)\' && \
-	terraform -chdir=$$service_path state show '$(t)'
+	aws-vault exec $(p) -- terraform -chdir=$$service_path state show '$(t)'
 
 .PHONY: state_import
-state_import: check_env check_service check_target check_other_target
+state_import: check_profile check_env check_service check_target check_other_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting state import resource: \"$$service_path\" from target: \'$(t)\' to: $(ot) && \
-	terraform -chdir=$$service_path import --var-file=../terraform.$(e).tfvars '$(t)' '$(ot)'
+	aws-vault exec $(p) -- terraform -chdir=$$service_path import --var-file=../terraform.$(e).tfvars '$(t)' '$(ot)'
 
 .PHONY: state_rm
-state_rm: check_env check_service check_target
+state_rm: check_profile check_env check_service check_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting state delete resource: \"$$service_path\" with target: \'$(t)\' && \
-	terraform -chdir=$$service_path state rm '$(t)'
+	aws-vault exec $(p) -- terraform -chdir=$$service_path state rm '$(t)'
 
 .PHONY: state_mv
-state_mv: check_env check_service check_target check_other_target
+state_mv: check_profile check_env check_service check_target check_other_target
 	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && echo Excuting state move resource: \"$$service_path\" from target: \'$(t)\' to: \'$(ot)\' && \
-	terraform -chdir=$$service_path state mv '$(t)' '$(ot)'
+	aws-vault exec $(p) -- terraform -chdir=$$service_path state mv '$(t)' '$(ot)'
