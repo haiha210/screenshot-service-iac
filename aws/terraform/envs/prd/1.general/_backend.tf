@@ -12,9 +12,9 @@ terraform {
     template = "~> 2.0"
   }
   backend "s3" {
-    bucket  = "screenshot-service-prd-iac-state"
-    key     = "general/terraform.prd.tfstate"
-    region  = "ap-southeast-1"
+    bucket         = "screenshot-service-prd-iac-state"
+    key            = "general/terraform.prd.tfstate"
+    region         = "ap-southeast-1"
     encrypt        = true
     kms_key_id     = "alias/screenshot-service-prd-iac"
     dynamodb_table = "screenshot-service-prd-terraform-state-lock"
@@ -23,7 +23,7 @@ terraform {
 
 # Configure the AWS Provider
 provider "aws" {
-  region  = var.region
+  region = var.region
   default_tags {
     tags = {
       Project     = var.project

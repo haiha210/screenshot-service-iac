@@ -1,0 +1,1 @@
+/home/gm/projects/devops/screenshot-service/screenshots-service-iac/aws/terraform/envs/prd/_variables.tf

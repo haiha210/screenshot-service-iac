@@ -1,0 +1,86 @@
+---
+family: ${task_family}
+networkMode: awsvpc
+requiresCompatibilities:
+  - FARGATE
+cpu: "${task_cpu}"
+memory: "${task_memory}"
+executionRoleArn: ${execution_role_arn}
+taskRoleArn: ${task_role_arn}
+
+containerDefinitions:
+  - name: ${service_name}
+    image: ${container_image}
+    cpu: ${task_cpu}
+    memory: ${task_memory}
+    essential: true
+
+    portMappings:
+      - containerPort: ${container_port}
+        protocol: tcp
+
+    environment:
+      # AWS Configuration
+      - name: AWS_REGION
+        value: ${region}
+
+      # SQS Configuration
+      - name: SQS_QUEUE_URL
+        value: ${sqs_queue_url}
+      - name: SQS_BATCH_SIZE
+        value: "5"
+      - name: SQS_VISIBILITY_TIMEOUT
+        value: "300"
+      - name: SQS_WAIT_TIME_SECONDS
+        value: "20"
+
+      # S3 Configuration
+      - name: S3_BUCKET_NAME
+        value: ${s3_bucket_name}
+      - name: S3_SCREENSHOT_PREFIX
+        value: "screenshots/"
+
+      # DynamoDB Configuration
+      - name: DYNAMODB_TABLE_NAME
+        value: ${dynamodb_table_name}
+
+      # Screenshot Configuration
+      - name: SCREENSHOT_WIDTH
+        value: "1920"
+      - name: SCREENSHOT_HEIGHT
+        value: "1080"
+      - name: SCREENSHOT_TIMEOUT
+        value: "30000"
+      - name: SCREENSHOT_FORMAT
+        value: "png"
+
+      # Application Configuration
+      - name: NODE_ENV
+        value: "production"
+      - name: LOG_LEVEL
+        value: "info"
+      - name: USE_LOCALSTACK
+        value: "false"
+
+      # Health Check Configuration
+      - name: HEALTH_CHECK_PORT
+        value: "5000"
+      - name: HEALTH_CHECK_PATH
+        value: "/health"
+
+    logConfiguration:
+      logDriver: awslogs
+      options:
+        awslogs-group: /ecs/${project}-${env}-${service_name}
+        awslogs-region: ${region}
+        awslogs-stream-prefix: ecs
+        awslogs-create-group: "true"
+
+    healthCheck:
+      command:
+        - CMD-SHELL
+        - echo 'healthy' || exit 1
+      interval: 30
+      timeout: 5
+      retries: 3
+      startPeriod: 60

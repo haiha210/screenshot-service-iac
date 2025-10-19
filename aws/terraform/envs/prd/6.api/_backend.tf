@@ -1,3 +1,6 @@
+###################
+# API (Lambda + API Gateway) Initialization
+###################
 terraform {
   required_version = ">= 1.3.9"
 
@@ -8,10 +11,9 @@ terraform {
     }
     template = "~> 2.0"
   }
-
   backend "s3" {
     bucket         = "screenshot-service-prd-iac-state"
-    key            = "backend/terraform.prd.tfstate"
+    key            = "api/terraform.prd.tfstate"
     region         = "ap-southeast-1"
     encrypt        = true
     kms_key_id     = "alias/screenshot-service-prd-iac"
@@ -28,3 +30,5 @@ provider "aws" {
     }
   }
 }
+
+data "aws_caller_identity" "current" {}

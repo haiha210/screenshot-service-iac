@@ -11,3 +11,30 @@ functions:
     source_path: ../../../../lambdas/handlers/health
     environment:
       SERVICE_NAME: screenshots-service
+
+  # Screenshot Processing Functions
+  - name: createScreenshot
+    handler: app.handler
+    runtime: nodejs22.x
+    timeout: 30
+    memory_size: 512
+    reserved_concurrent_executions: 10
+    description: Create screenshot request Lambda function
+    api_path: /screenshot
+    http_method: POST
+    environment:
+      NODE_ENV: "{{env}}"
+      SERVICE_NAME: screenshots-service
+
+  - name: getScreenshotStatus
+    handler: app.handler
+    runtime: nodejs22.x
+    timeout: 15
+    memory_size: 256
+    reserved_concurrent_executions: 20
+    description: Get screenshot status Lambda function
+    api_path: /screenshot/{id}/status
+    http_method: GET
+    environment:
+      NODE_ENV: "{{env}}"
+      SERVICE_NAME: screenshots-service
