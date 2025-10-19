@@ -48,7 +48,8 @@ resource "aws_dynamodb_table" "screenshot_results" {
 
   # Server-side encryption
   server_side_encryption {
-    enabled = true
+    enabled     = true
+    kms_key_arn = data.terraform_remote_state.general.outputs.dynamodb_kms_key_arn
   }
 
   tags = {

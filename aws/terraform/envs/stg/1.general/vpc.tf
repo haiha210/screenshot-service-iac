@@ -70,13 +70,7 @@ resource "aws_security_group" "vpc_endpoints" {
     description = "HTTPS access from VPC"
   }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "All outbound traffic"
-  }
+  # No egress rules needed - VPC endpoints only receive traffic, they don't initiate outbound connections
 
   tags = {
     Name        = "${var.project}-${var.env}-vpc-endpoints-sg"

@@ -8,7 +8,7 @@ module "screenshots_bucket" {
   env                = var.env
   project            = var.project
   purpose            = "Store screenshot images from backend service"
-  versioning_enabled = var.env == "prd"
+  versioning_enabled = true
 
   lifecycle_rules = [{
     id     = "screenshot_lifecycle"
@@ -48,12 +48,14 @@ module "access_logs_bucket" {
   env                = var.env
   project            = var.project
   purpose            = "Store S3 access logs for screenshot bucket"
-  versioning_enabled = false
+  versioning_enabled = true
 
   lifecycle_rules = [{
-    id              = "access_logs_lifecycle"
-    status          = "Enabled"
-    expiration_days = 90
+    id                         = "access_logs_lifecycle"
+    status                     = "Enabled"
+    expiration_days            = 90
+    noncurrent_expiration_days = 30
+    incomplete_multipart_days  = 7
   }]
 }
 

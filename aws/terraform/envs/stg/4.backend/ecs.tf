@@ -1,6 +1,18 @@
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
   name = var.ecs_cluster_name
+
+  # Enable CloudWatch Container Insights for monitoring
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
+  tags = {
+    Name        = "${var.project}-${var.env}-${var.ecs_cluster_name}"
+    Environment = var.env
+    Project     = var.project
+  }
 }
 
 # ECS Task Definition
@@ -14,20 +26,20 @@ resource "aws_ecs_task_definition" "main" {
   task_role_arn            = data.terraform_remote_state.general.outputs.ecs_task_role_arn
 
   container_definitions = templatefile("${path.module}/../../../../templates/ecs-task-definition.json", {
-    task_family          = var.ecs_task_definition_family
-    task_cpu             = var.ecs_task_cpu
-    task_memory          = var.ecs_task_memory
-    execution_role_arn   = data.terraform_remote_state.general.outputs.ecs_task_execution_role_arn
-    task_role_arn        = data.terraform_remote_state.general.outputs.ecs_task_role_arn
-    service_name         = var.ecs_service_name
-    container_image      = local.container_image
-    container_port       = var.ecs_container_port
-    project              = var.project
-    env                  = var.env
-    region               = var.region
-    sqs_queue_url        = data.terraform_remote_state.general.outputs.screenshot_queue_url
-    dynamodb_table_name  = data.terraform_remote_state.databases.outputs.screenshot_results_table_name
-    s3_bucket_name       = data.terraform_remote_state.general.outputs.screenshots_bucket_name
+    task_family         = var.ecs_task_definition_family
+    task_cpu            = var.ecs_task_cpu
+    task_memory         = var.ecs_task_memory
+    execution_role_arn  = data.terraform_remote_state.general.outputs.ecs_task_execution_role_arn
+    task_role_arn       = data.terraform_remote_state.general.outputs.ecs_task_role_arn
+    service_name        = var.ecs_service_name
+    container_image     = local.container_image
+    container_port      = var.ecs_container_port
+    project             = var.project
+    env                 = var.env
+    region              = var.region
+    sqs_queue_url       = data.terraform_remote_state.general.outputs.screenshot_queue_url
+    dynamodb_table_name = data.terraform_remote_state.databases.outputs.screenshot_results_table_name
+    s3_bucket_name      = data.terraform_remote_state.general.outputs.screenshots_bucket_name
   })
 
   tags = {
@@ -78,13 +90,13 @@ resource "aws_security_group" "ecs_tasks" {
   description = "Security group for ECS tasks"
   vpc_id      = local.vpc_id
 
-  # Allow outbound HTTPS traffic to AWS services (SQS, DynamoDB, S3, ECR)
+  # Allow outbound HTTPS traffic to VPC endpoints (SQS, DynamoDB, S3, ECR, CloudWatch)
   egress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTPS to AWS services and ECR"
+    cidr_blocks = [local.vpc_cidr]
+    description = "HTTPS to AWS services via VPC endpoints"
   }
 
   tags = {
