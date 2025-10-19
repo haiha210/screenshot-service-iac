@@ -1,6 +1,18 @@
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
   name = var.ecs_cluster_name
+
+  # Enable CloudWatch Container Insights for monitoring
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
+  tags = {
+    Name        = "${var.project}-${var.env}-${var.ecs_cluster_name}"
+    Environment = var.env
+    Project     = var.project
+  }
 }
 
 # ECS Task Definition
@@ -13,7 +25,7 @@ resource "aws_ecs_task_definition" "main" {
   execution_role_arn       = data.terraform_remote_state.general.outputs.ecs_task_execution_role_arn
   task_role_arn            = data.terraform_remote_state.general.outputs.ecs_task_role_arn
 
-  container_definitions = templatefile("${path.module}/../../../templates/ecs-task-definition.yaml", {
+  container_definitions = templatefile("${path.module}/../../../../templates/ecs-task-definition.json", {
     task_family          = var.ecs_task_definition_family
     task_cpu             = var.ecs_task_cpu
     task_memory          = var.ecs_task_memory
@@ -78,22 +90,13 @@ resource "aws_security_group" "ecs_tasks" {
   description = "Security group for ECS tasks"
   vpc_id      = local.vpc_id
 
-  # Allow outbound traffic to SQS, DynamoDB, S3 via VPC endpoints
+  # Allow outbound HTTPS traffic to VPC endpoints (SQS, DynamoDB, S3, ECR, CloudWatch)
   egress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTPS to AWS services"
-  }
-
-  # Allow outbound traffic for pulling Docker images from ECR
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTPS for ECR image pull"
+    cidr_blocks = [local.vpc_cidr]
+    description = "HTTPS to AWS services via VPC endpoints"
   }
 
   tags = {

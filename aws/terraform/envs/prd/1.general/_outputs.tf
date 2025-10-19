@@ -15,6 +15,11 @@ output "vpc_id" {
   description = "ID of VPC"
 }
 
+output "vpc_cidr" {
+  value       = module.vpc.vpc_cidr
+  description = "CIDR block of VPC"
+}
+
 output "cloudwatch_logs_kms_key_arn" {
   value       = aws_kms_key.cloudwatch_logs.arn
   description = "ARN of KMS key for CloudWatch Logs encryption"
@@ -23,6 +28,26 @@ output "cloudwatch_logs_kms_key_arn" {
 output "cloudwatch_logs_kms_key_id" {
   value       = aws_kms_key.cloudwatch_logs.key_id
   description = "ID of KMS key for CloudWatch Logs encryption"
+}
+
+output "dynamodb_kms_key_arn" {
+  value       = aws_kms_key.dynamodb.arn
+  description = "ARN of KMS key for DynamoDB encryption"
+}
+
+output "dynamodb_kms_key_id" {
+  value       = aws_kms_key.dynamodb.key_id
+  description = "ID of KMS key for DynamoDB encryption"
+}
+
+output "ecr_kms_key_arn" {
+  value       = aws_kms_key.ecr.arn
+  description = "ARN of KMS key for ECR encryption"
+}
+
+output "ecr_kms_key_id" {
+  value       = aws_kms_key.ecr.key_id
+  description = "ID of KMS key for ECR encryption"
 }
 
 # VPC Subnet Outputs
@@ -95,65 +120,41 @@ output "screenshots_bucket_regional_domain_name" {
 
 # SQS Queue Outputs
 output "screenshot_queue_url" {
-  value       = aws_sqs_queue.screenshot_queue.id
+  value       = module.screenshot_queue.queue_id
   description = "URL of the main screenshot processing queue"
 }
 
 output "screenshot_queue_arn" {
-  value       = aws_sqs_queue.screenshot_queue.arn
+  value       = module.screenshot_queue.queue_arn
   description = "ARN of the main screenshot processing queue"
 }
 
 output "screenshot_dlq_url" {
-  value       = aws_sqs_queue.screenshot_dlq.id
+  value       = module.screenshot_dlq.queue_id
   description = "URL of the screenshot dead letter queue"
 }
 
 output "screenshot_dlq_arn" {
-  value       = aws_sqs_queue.screenshot_dlq.arn
+  value       = module.screenshot_dlq.queue_arn
   description = "ARN of the screenshot dead letter queue"
 }
 
 output "screenshot_priority_queue_url" {
-  value       = aws_sqs_queue.screenshot_priority_queue.id
+  value       = module.screenshot_priority_queue.queue_id
   description = "URL of the priority screenshot processing queue"
 }
 
 output "screenshot_priority_queue_arn" {
-  value       = aws_sqs_queue.screenshot_priority_queue.arn
+  value       = module.screenshot_priority_queue.queue_arn
   description = "ARN of the priority screenshot processing queue"
 }
 
 output "screenshot_fifo_queue_url" {
-  value       = var.env == "prd" ? aws_sqs_queue.screenshot_fifo_queue[0].id : null
+  value       = var.env == "prd" ? module.screenshot_fifo_queue[0].queue_id : null
   description = "URL of the FIFO screenshot processing queue (production only)"
 }
 
 output "screenshot_fifo_queue_arn" {
-  value       = var.env == "prd" ? aws_sqs_queue.screenshot_fifo_queue[0].arn : null
+  value       = var.env == "prd" ? module.screenshot_fifo_queue[0].queue_arn : null
   description = "ARN of the FIFO screenshot processing queue (production only)"
 }
-
-# Artifacts S3 Bucket Outputs
-output "artifacts_bucket_name" {
-  value       = module.artifacts_bucket.bucket_id
-  description = "Name of the artifacts S3 bucket"
-}
-
-output "artifacts_bucket_arn" {
-  value       = module.artifacts_bucket.bucket_arn
-  description = "ARN of the artifacts S3 bucket"
-}
-
-output "cicd_role_arn" {
-  value       = aws_iam_role.cicd_role.arn
-  description = "ARN of the CI/CD IAM role"
-}
-
-output "cicd_artifacts_upload_policy_arn" {
-  value       = aws_iam_policy.cicd_artifacts_upload.arn
-  description = "ARN of the CI/CD artifacts upload policy"
-}
-
-# Lambda-related outputs have been moved to 5.api module
-# This keeps the general module focused on infrastructure only

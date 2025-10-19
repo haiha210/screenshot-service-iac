@@ -1,10 +1,8 @@
-data "aws_iam_policy_document" "assume_role_lambda" {
-  statement {
-    actions = ["sts:AssumeRole"]
+# Data sources
+data "aws_region" "current" {}
 
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-  }
+# Local values
+locals {
+  aws_account_id = data.aws_caller_identity.current.account_id
+  aws_region     = data.aws_region.current.id
 }

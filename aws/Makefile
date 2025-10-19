@@ -16,6 +16,15 @@ endif
 set_profile: set_env
 ifndef p
 p := $(PROJECT)-$(e)
+.PHONY: unlock
+unlock: check_profile check_env check_service
+	@service_path=$$(ls -d terraform/envs/$(e)/*/ | grep $(s) | head -n 1) && \
+	if [ -z "$$id" ]; then \
+		echo "Error: Please provide lock id, e.g. make unlock e=prd s=general id=<LOCK_ID>" && exit 1; \
+	else \
+		echo "Unlocking state with id: $$id for $$service_path" && \
+		aws-vault exec $(p) -- terraform -chdir=$$service_path force-unlock $$id; \
+	fi
 endif
 
 .PHONY: check_profile

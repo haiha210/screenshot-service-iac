@@ -13,7 +13,7 @@ terraform {
   }
   backend "s3" {
     bucket  = "screenshot-service-prd-iac-state"
-    key     = "Databases/terraform.prd.tfstate"
+    key     = "databases/terraform.prd.tfstate"
     region  = "ap-southeast-1"
     encrypt        = true
     kms_key_id     = "alias/screenshot-service-prd-iac"

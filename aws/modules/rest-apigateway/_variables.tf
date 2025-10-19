@@ -17,6 +17,9 @@ variable "rest_api" {
     endpoint_type                = optional(string, "EDGE")
     vpc_endpoint_ids             = optional(list(string), null)
     body                         = string
+    cache_cluster_enabled        = optional(bool, false)
+    cache_cluster_size           = optional(string, "0.5")
+    cache_ttl_in_seconds         = optional(number, 300)
     access_log_settings = optional(object({
       log_group_arn = string
       format = optional(string,

@@ -1,40 +1,41 @@
 functions:
   # Health Check
-  - name: health-check
+  - name: healthCheck
     handler: app.handler
     runtime: nodejs22.x
-    timeout: 10
+    timeout: 900
     memory_size: 128
     description: Health check endpoint
     api_path: /health
     http_method: GET
     source_path: ../../../../lambdas/handlers/health
     environment:
+      NODE_ENV: Production
       SERVICE_NAME: screenshots-service
 
   # Screenshot Processing Functions
   - name: createScreenshot
     handler: app.handler
     runtime: nodejs22.x
-    timeout: 30
-    memory_size: 512
-    reserved_concurrent_executions: 10
+    timeout: 900
+    memory_size: 256
+    reserved_concurrent_executions: 5
     description: Create screenshot request Lambda function
     api_path: /screenshot
     http_method: POST
     environment:
-      NODE_ENV: "{{env}}"
+      NODE_ENV: Production
       SERVICE_NAME: screenshots-service
 
   - name: getScreenshotStatus
     handler: app.handler
     runtime: nodejs22.x
-    timeout: 15
+    timeout: 900
     memory_size: 256
-    reserved_concurrent_executions: 20
+    reserved_concurrent_executions: 5
     description: Get screenshot status Lambda function
     api_path: /screenshot/{id}/status
     http_method: GET
     environment:
-      NODE_ENV: "{{env}}"
+      NODE_ENV: Production
       SERVICE_NAME: screenshots-service

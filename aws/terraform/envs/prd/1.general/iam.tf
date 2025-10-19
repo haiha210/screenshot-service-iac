@@ -173,25 +173,6 @@ data "aws_iam_policy_document" "screenshots_s3_access" {
   }
 }
 
-# IAM Policy Document for Artifacts S3 Bucket Access (Read-only for Lambda/ECS)
-data "aws_iam_policy_document" "artifacts_s3_access" {
-  statement {
-    sid    = "AllowArtifactsS3Access"
-    effect = "Allow"
-
-    actions = [
-      "s3:GetObject",
-      "s3:ListBucket",
-      "s3:GetBucketVersioning"
-    ]
-
-    resources = [
-      module.artifacts_bucket.bucket_arn,
-      "${module.artifacts_bucket.bucket_arn}/*"
-    ]
-  }
-}
-
 # IAM Policy for Screenshots S3 Bucket Access
 resource "aws_iam_policy" "screenshots_s3_access" {
   name        = "${var.project}-${var.env}-screenshots-s3-access"
@@ -203,20 +184,6 @@ resource "aws_iam_policy" "screenshots_s3_access" {
     Environment = var.env
     Project     = var.project
     Purpose     = "Access to screenshots storage bucket"
-  }
-}
-
-# IAM Policy for Artifacts S3 Bucket Access (Read-only)
-resource "aws_iam_policy" "artifacts_s3_access" {
-  name        = "${var.project}-${var.env}-artifacts-s3-access"
-  description = "IAM policy for artifacts S3 bucket read access"
-  policy      = data.aws_iam_policy_document.artifacts_s3_access.json
-
-  tags = {
-    Name        = "${var.project}-${var.env}-artifacts-s3-access"
-    Environment = var.env
-    Project     = var.project
-    Purpose     = "Read access to deployment artifacts bucket"
   }
 }
 
@@ -233,10 +200,10 @@ data "aws_iam_policy_document" "lambda_sqs_access" {
     ]
 
     resources = concat([
-      aws_sqs_queue.screenshot_queue.arn,
-      aws_sqs_queue.screenshot_priority_queue.arn
+      module.screenshot_queue.queue_arn,
+      module.screenshot_priority_queue.queue_arn
       ], var.env == "prd" ? [
-      aws_sqs_queue.screenshot_fifo_queue[0].arn
+      module.screenshot_fifo_queue[0].queue_arn
     ] : [])
   }
 }
@@ -256,12 +223,12 @@ data "aws_iam_policy_document" "ecs_sqs_access" {
     ]
 
     resources = concat([
-      aws_sqs_queue.screenshot_queue.arn,
-      aws_sqs_queue.screenshot_priority_queue.arn,
-      aws_sqs_queue.screenshot_dlq.arn
+      module.screenshot_queue.queue_arn,
+      module.screenshot_priority_queue.queue_arn,
+      module.screenshot_dlq.queue_arn
       ], var.env == "prd" ? [
-      aws_sqs_queue.screenshot_fifo_queue[0].arn,
-      aws_sqs_queue.screenshot_fifo_dlq[0].arn
+      module.screenshot_fifo_queue[0].queue_arn,
+      module.screenshot_fifo_dlq[0].queue_arn
     ] : [])
   }
 }
@@ -310,11 +277,6 @@ resource "aws_iam_role_policy_attachment" "lambda_screenshots_s3_access" {
   policy_arn = aws_iam_policy.screenshots_s3_access.arn
 }
 
-# Attach Artifacts S3 read access policy to Lambda role
-resource "aws_iam_role_policy_attachment" "lambda_artifacts_s3_access" {
-  role       = aws_iam_role.lambda_execution_role.name
-  policy_arn = aws_iam_policy.artifacts_s3_access.arn
-}
 
 # Attach SQS access policy to Lambda role
 resource "aws_iam_role_policy_attachment" "lambda_sqs_access" {
@@ -338,12 +300,6 @@ resource "aws_iam_role_policy_attachment" "ecs_dynamodb_access" {
 resource "aws_iam_role_policy_attachment" "ecs_screenshots_s3_access" {
   role       = aws_iam_role.ecs_task_role.name
   policy_arn = aws_iam_policy.screenshots_s3_access.arn
-}
-
-# Attach Artifacts S3 read access policy to ECS task role (if needed)
-resource "aws_iam_role_policy_attachment" "ecs_artifacts_s3_access" {
-  role       = aws_iam_role.ecs_task_role.name
-  policy_arn = aws_iam_policy.artifacts_s3_access.arn
 }
 
 # Attach SQS access policy to ECS task role
@@ -376,11 +332,6 @@ output "dynamodb_access_policy_arn" {
 output "screenshots_s3_access_policy_arn" {
   description = "ARN of the Screenshots S3 access policy"
   value       = aws_iam_policy.screenshots_s3_access.arn
-}
-
-output "artifacts_s3_access_policy_arn" {
-  description = "ARN of the Artifacts S3 access policy"
-  value       = aws_iam_policy.artifacts_s3_access.arn
 }
 
 output "lambda_sqs_access_policy_arn" {
