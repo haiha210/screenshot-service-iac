@@ -1,5 +1,5 @@
 ###################
-# General Initialization
+# Admin Module - Deployment Users
 ###################
 terraform {
   required_version = ">= 1.3.9"
@@ -9,21 +9,20 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 4.0"
     }
-    template = "~> 2.0"
   }
   backend "s3" {
-    bucket  = "screenshot-service-stg-iac-state"
-    key     = "admin/terraform.stg.tfstate"
-    region  = "ap-southeast-1"
-    /* encrypt        = true
-    kms_key_id     = "arn:aws:kms:ap-southeast-1:<account-id>:key/<key-id>" */
-    dynamodb_table = "screenshot-service-stg-terraform-state-lock"
+    bucket         = "screenshot-service-dev-iac-state"
+    key            = "admin/terraform.dev.tfstate"
+    region         = "ap-southeast-1"
+    encrypt        = true
+    kms_key_id     = "alias/screenshot-service-dev-iac"
+    dynamodb_table = "screenshot-service-dev-terraform-state-lock"
   }
 }
 
 # Configure the AWS Provider
 provider "aws" {
-  region  = var.region
+  region = var.region
   default_tags {
     tags = {
       Project     = var.project
@@ -31,17 +30,5 @@ provider "aws" {
     }
   }
 }
+
 data "aws_caller_identity" "current" {}
-
-
-###################
-# General State
-###################
-data "terraform_remote_state" "general" {
-  backend = "s3"
-  config = {
-    bucket  = "${var.project}-${var.env}-iac-state"
-    key     = "general/terraform.${var.env}.tfstate"
-    region  = var.region
-  }
-}
