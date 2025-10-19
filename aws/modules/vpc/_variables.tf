@@ -53,6 +53,7 @@ variable "vpc_flow_logs" {
     log_destination_arn  = string #The ARN of the logging destination.
     log_destination_type = string #The type of the logging destination. Valid values: cloud-watch-logs, s3, kinesis-data-firehose
     traffic_type         = string #The type of traffic to capture. Valid values: ACCEPT,REJECT, ALL.
+    iam_role_arn         = optional(string) #IAM role ARN required for CloudWatch Logs destination.
   }))
   default = {} #Default: Don't create VPC Flow Log
 }

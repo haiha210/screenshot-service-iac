@@ -25,10 +25,9 @@ module "rest_apigateway" {
     endpoint_type                = "REGIONAL"
     disable_execute_api_endpoint = false
 
-    # Use dynamically generated OpenAPI spec
     body = jsonencode(local.api_spec)
 
-    # Cache configuration for improved performance and reduced costs
+    # Cache configuration for improved performance
     cache_cluster_enabled = var.enable_api_cache
     cache_cluster_size    = var.api_cache_size
     cache_ttl_in_seconds  = var.api_cache_ttl

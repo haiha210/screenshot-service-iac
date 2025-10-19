@@ -13,7 +13,7 @@ resource "aws_ecs_task_definition" "main" {
   execution_role_arn       = data.terraform_remote_state.general.outputs.ecs_task_execution_role_arn
   task_role_arn            = data.terraform_remote_state.general.outputs.ecs_task_role_arn
 
-  container_definitions = templatefile("${path.module}/../../../templates/ecs-task-definition.yaml", {
+  container_definitions = templatefile("${path.module}/../../../../templates/ecs-task-definition.json", {
     task_family          = var.ecs_task_definition_family
     task_cpu             = var.ecs_task_cpu
     task_memory          = var.ecs_task_memory
@@ -78,22 +78,13 @@ resource "aws_security_group" "ecs_tasks" {
   description = "Security group for ECS tasks"
   vpc_id      = local.vpc_id
 
-  # Allow outbound traffic to SQS, DynamoDB, S3 via VPC endpoints
+  # Allow outbound HTTPS traffic to AWS services (SQS, DynamoDB, S3, ECR)
   egress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTPS to AWS services"
-  }
-
-  # Allow outbound traffic for pulling Docker images from ECR
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTPS for ECR image pull"
+    description = "HTTPS to AWS services and ECR"
   }
 
   tags = {

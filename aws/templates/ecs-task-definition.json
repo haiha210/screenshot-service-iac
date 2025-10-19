@@ -1,0 +1,104 @@
+[
+  {
+    "name": "${service_name}",
+    "image": "${container_image}",
+    "cpu": ${task_cpu},
+    "memory": ${task_memory},
+    "essential": true,
+    "portMappings": [
+      {
+        "containerPort": ${container_port},
+        "protocol": "tcp"
+      }
+    ],
+    "environment": [
+      {
+        "name": "AWS_REGION",
+        "value": "${region}"
+      },
+      {
+        "name": "SQS_QUEUE_URL",
+        "value": "${sqs_queue_url}"
+      },
+      {
+        "name": "SQS_BATCH_SIZE",
+        "value": "5"
+      },
+      {
+        "name": "SQS_VISIBILITY_TIMEOUT",
+        "value": "300"
+      },
+      {
+        "name": "SQS_WAIT_TIME_SECONDS",
+        "value": "20"
+      },
+      {
+        "name": "S3_BUCKET_NAME",
+        "value": "${s3_bucket_name}"
+      },
+      {
+        "name": "S3_SCREENSHOT_PREFIX",
+        "value": "screenshots/"
+      },
+      {
+        "name": "DYNAMODB_TABLE_NAME",
+        "value": "${dynamodb_table_name}"
+      },
+      {
+        "name": "SCREENSHOT_WIDTH",
+        "value": "1920"
+      },
+      {
+        "name": "SCREENSHOT_HEIGHT",
+        "value": "1080"
+      },
+      {
+        "name": "SCREENSHOT_TIMEOUT",
+        "value": "30000"
+      },
+      {
+        "name": "SCREENSHOT_FORMAT",
+        "value": "png"
+      },
+      {
+        "name": "NODE_ENV",
+        "value": "production"
+      },
+      {
+        "name": "LOG_LEVEL",
+        "value": "info"
+      },
+      {
+        "name": "USE_LOCALSTACK",
+        "value": "false"
+      },
+      {
+        "name": "HEALTH_CHECK_PORT",
+        "value": "5000"
+      },
+      {
+        "name": "HEALTH_CHECK_PATH",
+        "value": "/health"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/${project}-${env}-${service_name}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "ecs",
+        "awslogs-create-group": "true"
+      }
+    },
+    "healthCheck": {
+      "command": [
+        "CMD-SHELL",
+        "echo 'healthy' || exit 1"
+      ],
+      "interval": 30,
+      "timeout": 5,
+      "retries": 3,
+      "startPeriod": 60
+    }
+  }
+]

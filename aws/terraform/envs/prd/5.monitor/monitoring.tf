@@ -10,18 +10,8 @@ resource "aws_cloudwatch_dashboard" "ecs_autoscaling" {
         type = "metric"
         properties = {
           metrics = [
-            ["ECS/ContainerInsights", "RunningTaskCount", {
-              stat    = "Average"
-              label   = "Running Tasks"
-              service = aws_ecs_service.main.name
-              cluster = aws_ecs_cluster.main.name
-            }],
-            [".", "DesiredTaskCount", {
-              stat    = "Average"
-              label   = "Desired Tasks"
-              service = aws_ecs_service.main.name
-              cluster = aws_ecs_cluster.main.name
-            }]
+            ["ECS/ContainerInsights", "RunningTaskCount", "ServiceName", data.terraform_remote_state.backend.outputs.ecs_service_name, "ClusterName", data.terraform_remote_state.backend.outputs.ecs_cluster_name, { stat = "Average", label = "Running Tasks" }],
+            [".", "DesiredTaskCount", ".", ".", ".", ".", { stat = "Average", label = "Desired Tasks" }]
           ]
           period = 60
           stat   = "Average"
@@ -44,16 +34,8 @@ resource "aws_cloudwatch_dashboard" "ecs_autoscaling" {
         type = "metric"
         properties = {
           metrics = [
-            ["AWS/SQS", "ApproximateNumberOfMessagesVisible", {
-              stat      = "Average"
-              label     = "Messages in Queue"
-              QueueName = split("/", data.terraform_remote_state.general.outputs.screenshot_queue_url)[4]
-            }],
-            [".", "ApproximateNumberOfMessagesNotVisible", {
-              stat      = "Average"
-              label     = "Messages in Flight"
-              QueueName = split("/", data.terraform_remote_state.general.outputs.screenshot_queue_url)[4]
-            }]
+            ["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", split("/", data.terraform_remote_state.general.outputs.screenshot_queue_url)[4], { stat = "Average", label = "Messages in Queue" }],
+            [".", "ApproximateNumberOfMessagesNotVisible", ".", ".", { stat = "Average", label = "Messages in Flight" }]
           ]
           period = 60
           stat   = "Average"
@@ -76,12 +58,7 @@ resource "aws_cloudwatch_dashboard" "ecs_autoscaling" {
         type = "metric"
         properties = {
           metrics = [
-            ["AWS/ECS", "CPUUtilization", {
-              stat        = "Average"
-              label       = "CPU Utilization"
-              ServiceName = aws_ecs_service.main.name
-              ClusterName = aws_ecs_cluster.main.name
-            }]
+            ["AWS/ECS", "CPUUtilization", "ServiceName", data.terraform_remote_state.backend.outputs.ecs_service_name, "ClusterName", data.terraform_remote_state.backend.outputs.ecs_cluster_name, { stat = "Average", label = "CPU Utilization" }]
           ]
           period = 60
           stat   = "Average"
@@ -114,12 +91,7 @@ resource "aws_cloudwatch_dashboard" "ecs_autoscaling" {
         type = "metric"
         properties = {
           metrics = [
-            ["AWS/ECS", "MemoryUtilization", {
-              stat        = "Average"
-              label       = "Memory Utilization"
-              ServiceName = aws_ecs_service.main.name
-              ClusterName = aws_ecs_cluster.main.name
-            }]
+            ["AWS/ECS", "MemoryUtilization", "ServiceName", data.terraform_remote_state.backend.outputs.ecs_service_name, "ClusterName", data.terraform_remote_state.backend.outputs.ecs_cluster_name, { stat = "Average", label = "Memory Utilization" }]
           ]
           period = 60
           stat   = "Average"
@@ -152,24 +124,9 @@ resource "aws_cloudwatch_dashboard" "ecs_autoscaling" {
         type = "metric"
         properties = {
           metrics = [
-            [{
-              expression = "m1 / GREATEST(m2, 1)"
-              label      = "Messages Per Task"
-              id         = "e1"
-            }],
-            ["AWS/SQS", "ApproximateNumberOfMessagesVisible", {
-              stat      = "Average"
-              id        = "m1"
-              visible   = false
-              QueueName = split("/", data.terraform_remote_state.general.outputs.screenshot_queue_url)[4]
-            }],
-            ["ECS/ContainerInsights", "RunningTaskCount", {
-              stat    = "Average"
-              id      = "m2"
-              visible = false
-              service = aws_ecs_service.main.name
-              cluster = aws_ecs_cluster.main.name
-            }]
+            [{ expression = "m1 / GREATEST(m2, 1)", label = "Messages Per Task", id = "e1" }],
+            ["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", split("/", data.terraform_remote_state.general.outputs.screenshot_queue_url)[4], { stat = "Average", id = "m1", visible = false }],
+            ["ECS/ContainerInsights", "RunningTaskCount", "ServiceName", data.terraform_remote_state.backend.outputs.ecs_service_name, "ClusterName", data.terraform_remote_state.backend.outputs.ecs_cluster_name, { stat = "Average", id = "m2", visible = false }]
           ]
           period = 60
           stat   = "Average"

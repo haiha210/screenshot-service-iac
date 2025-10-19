@@ -12,12 +12,12 @@ terraform {
     template = "~> 2.0"
   }
   backend "s3" {
-    bucket  = "project-stg-iac-state"
+    bucket  = "screenshot-service-stg-iac-state"
     key     = "general/terraform.stg.tfstate"
     region  = "ap-southeast-1"
     /* encrypt        = true
     kms_key_id     = "arn:aws:kms:ap-southeast-1:<account-id>:key/<key-id>" */
-    dynamodb_table = "project-stg-terraform-state-lock"
+    dynamodb_table = "screenshot-service-stg-terraform-state-lock"
   }
 }
 

@@ -4,7 +4,7 @@ resource "aws_kms_key" "cloudwatch_logs" {
   deletion_window_in_days = 10
   enable_key_rotation     = true
 
-  policy = templatefile("${path.module}/../../../../templates/kms-cloudwatch-logs-policy.yaml", {
+  policy = templatefile("${path.module}/../../../../templates/kms-cloudwatch-logs-policy.json", {
     account_id = local.aws_account_id
     region     = local.aws_region
   })

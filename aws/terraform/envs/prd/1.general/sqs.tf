@@ -2,7 +2,7 @@
 
 # Dead Letter Queue for failed messages
 module "screenshot_dlq" {
-  source = "../../../modules/sqs"
+  source = "../../../../modules/sqs"
 
   queue_name = "screenshot-queue-dlq"
   env        = var.env
@@ -32,7 +32,7 @@ module "screenshot_dlq" {
 
 # Main SQS Queue for screenshot processing
 module "screenshot_queue" {
-  source = "../../../modules/sqs"
+  source = "../../../../modules/sqs"
 
   queue_name = "screenshot-queue"
   env        = var.env
@@ -111,7 +111,7 @@ module "screenshot_queue" {
 
 # SQS Queue for high-priority screenshot requests
 module "screenshot_priority_queue" {
-  source = "../../../modules/sqs"
+  source = "../../../../modules/sqs"
 
   queue_name = "screenshot-priority-queue"
   env        = var.env
@@ -156,7 +156,7 @@ module "screenshot_priority_queue" {
 # FIFO Dead Letter Queue
 module "screenshot_fifo_dlq" {
   count  = var.env == "prd" ? 1 : 0
-  source = "../../../modules/sqs"
+  source = "../../../../modules/sqs"
 
   queue_name = "screenshot-fifo-dlq"
   env        = var.env
@@ -187,7 +187,7 @@ module "screenshot_fifo_dlq" {
 # FIFO Queue for ordered processing (if needed)
 module "screenshot_fifo_queue" {
   count  = var.env == "prd" ? 1 : 0
-  source = "../../../modules/sqs"
+  source = "../../../../modules/sqs"
 
   queue_name = "screenshot-fifo-queue"
   env        = var.env

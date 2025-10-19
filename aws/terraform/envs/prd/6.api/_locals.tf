@@ -4,7 +4,7 @@ locals {
   lambda_role_arn             = try(data.terraform_remote_state.general.outputs.iam_role_lambda_example_arn, null)
   cloudwatch_logs_kms_key_arn = data.terraform_remote_state.general.outputs.cloudwatch_logs_kms_key_arn
   aws_account_id              = data.aws_caller_identity.current.account_id
-  aws_region                  = data.aws_region.current.name
+  aws_region                  = data.aws_region.current.id
 
   # Lambda functions configuration now loaded from _data.tf
   lambda_functions = local.lambda_functions_merged

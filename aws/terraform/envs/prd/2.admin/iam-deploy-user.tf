@@ -22,7 +22,7 @@ resource "aws_iam_policy" "deploy" {
   name        = "${var.project}-${var.env}-deploy-policy"
   description = "Policy for CI/CD deployment user"
 
-  policy = templatefile("${path.module}/../../../../templates/deploy-user-policy.yaml", {
+  policy = templatefile("${path.module}/../../../../templates/deploy-user-policy.json", {
     account_id = local.aws_account_id
     region     = local.aws_region
     project    = var.project

@@ -63,15 +63,26 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attach" {
   policy_arn = aws_iam_policy.lambda_policy.arn
 }
 
+# Data source: lấy zip Lambda từ thư mục prd
+locals {
+  lambda_zip_dir = "${path.module}/../../../../lambdas/prd"
+}
+
+# Tạo data source cho từng zip file
+# (Nếu zip được upload lên S3, dùng aws_s3_object. Nếu dùng file cục bộ, dùng data "archive_file" hoặc "external".)
+# Ví dụ dùng file cục bộ:
+data "external" "lambda_zip" {
+  for_each = local.lambda_functions
+  program = ["bash", "-c", "ls ${local.lambda_zip_dir}/${each.key}.zip > /dev/null && echo '{\"zip_path\": \"${local.lambda_zip_dir}/${each.key}.zip\"}'"]
+}
+
 # Manage all Lambda functions dynamically from the lambda_functions map
 resource "aws_lambda_function" "functions" {
   for_each = local.lambda_functions
 
   function_name     = "${each.key}-${var.env}"
-  s3_bucket         = data.aws_s3_object.lambda_zips[each.key].bucket
-  s3_key            = data.aws_s3_object.lambda_zips[each.key].key
-  s3_object_version = data.aws_s3_object.lambda_zips[each.key].version_id
-  source_code_hash  = data.aws_s3_object.lambda_zips[each.key].etag
+  filename          = data.external.lambda_zip[each.key].result.zip_path
+  source_code_hash  = filebase64sha256(data.external.lambda_zip[each.key].result.zip_path)
 
   handler     = each.value.handler
   runtime     = each.value.runtime

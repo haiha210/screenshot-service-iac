@@ -69,7 +69,7 @@ resource "aws_ecr_repository_policy" "screenshot_service" {
         Sid    = "AllowECSTaskExecutionRolePull"
         Effect = "Allow"
         Principal = {
-          AWS = aws_iam_role.ecs_task_execution_role.arn
+          AWS = data.terraform_remote_state.general.outputs.ecs_task_execution_role_arn
         }
         Action = [
           "ecr:GetDownloadUrlForLayer",
@@ -77,22 +77,22 @@ resource "aws_ecr_repository_policy" "screenshot_service" {
           "ecr:BatchCheckLayerAvailability"
         ]
       },
-      {
-        Sid    = "AllowCICDPush"
-        Effect = "Allow"
-        Principal = {
-          AWS = aws_iam_role.cicd_role.arn
-        }
-        Action = [
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:PutImage",
-          "ecr:InitiateLayerUpload",
-          "ecr:UploadLayerPart",
-          "ecr:CompleteLayerUpload"
-        ]
-      }
+      # {
+      #   Sid    = "AllowCICDPush"
+      #   Effect = "Allow"
+      #   Principal = {
+      #     AWS = aws_iam_role.cicd_role.arn
+      #   }
+      #   Action = [
+      #     "ecr:GetDownloadUrlForLayer",
+      #     "ecr:BatchGetImage",
+      #     "ecr:BatchCheckLayerAvailability",
+      #     "ecr:PutImage",
+      #     "ecr:InitiateLayerUpload",
+      #     "ecr:UploadLayerPart",
+      #     "ecr:CompleteLayerUpload"
+      #   ]
+      # }
     ]
   })
 }
