@@ -5,6 +5,11 @@ output "vpc_id" {
   description = "ID of VPC"
 }
 
+output "vpc_cidr" {
+  value       = aws_vpc.vpc.cidr_block
+  description = "CIDR block of VPC"
+}
+
 #Subnet
 output "subnet_private_id" {
   value       = var.private_cidrs != null ? aws_subnet.subnet_private[*].id : []

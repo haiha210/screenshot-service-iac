@@ -2,16 +2,17 @@
 
 resource "aws_ecr_repository" "screenshot_service" {
   name                 = "${var.project}-${var.env}-screenshot-service"
-  image_tag_mutability = "MUTABLE"
+  image_tag_mutability = "IMMUTABLE" # Prevent tag overwriting for security and compliance
 
   # Enable image scanning on push for security
   image_scanning_configuration {
     scan_on_push = true
   }
 
-  # Enable encryption at rest
+  # Enable encryption at rest with Customer Managed Key (CMK)
   encryption_configuration {
-    encryption_type = "AES256"
+    encryption_type = "KMS"
+    kms_key         = data.terraform_remote_state.general.outputs.ecr_kms_key_arn
   }
 
   tags = {

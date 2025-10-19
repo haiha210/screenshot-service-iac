@@ -1,6 +1,18 @@
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
   name = var.ecs_cluster_name
+
+  # Enable CloudWatch Container Insights for monitoring
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
+  tags = {
+    Name        = "${var.project}-${var.env}-${var.ecs_cluster_name}"
+    Environment = var.env
+    Project     = var.project
+  }
 }
 
 # ECS Task Definition
@@ -78,13 +90,14 @@ resource "aws_security_group" "ecs_tasks" {
   description = "Security group for ECS tasks"
   vpc_id      = local.vpc_id
 
-  # Allow outbound HTTPS traffic to AWS services (SQS, DynamoDB, S3, ECR)
+  # Allow outbound HTTPS traffic to VPC endpoints (SQS, DynamoDB, S3, ECR, CloudWatch Logs)
+  # All AWS services are accessed via VPC endpoints within the VPC CIDR
   egress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "HTTPS to AWS services and ECR"
+    cidr_blocks = [data.terraform_remote_state.general.outputs.vpc_cidr]
+    description = "HTTPS to VPC endpoints for AWS services"
   }
 
   tags = {

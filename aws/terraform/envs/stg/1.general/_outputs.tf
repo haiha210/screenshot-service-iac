@@ -15,6 +15,11 @@ output "vpc_id" {
   description = "ID of VPC"
 }
 
+output "vpc_cidr" {
+  value       = module.vpc.vpc_cidr
+  description = "CIDR block of VPC"
+}
+
 output "cloudwatch_logs_kms_key_arn" {
   value       = aws_kms_key.cloudwatch_logs.arn
   description = "ARN of KMS key for CloudWatch Logs encryption"
@@ -23,6 +28,26 @@ output "cloudwatch_logs_kms_key_arn" {
 output "cloudwatch_logs_kms_key_id" {
   value       = aws_kms_key.cloudwatch_logs.key_id
   description = "ID of KMS key for CloudWatch Logs encryption"
+}
+
+output "dynamodb_kms_key_arn" {
+  value       = aws_kms_key.dynamodb.arn
+  description = "ARN of KMS key for DynamoDB encryption"
+}
+
+output "dynamodb_kms_key_id" {
+  value       = aws_kms_key.dynamodb.key_id
+  description = "ID of KMS key for DynamoDB encryption"
+}
+
+output "ecr_kms_key_arn" {
+  value       = aws_kms_key.ecr.arn
+  description = "ARN of KMS key for ECR encryption"
+}
+
+output "ecr_kms_key_id" {
+  value       = aws_kms_key.ecr.key_id
+  description = "ID of KMS key for ECR encryption"
 }
 
 # VPC Subnet Outputs

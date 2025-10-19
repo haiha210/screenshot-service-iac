@@ -46,9 +46,10 @@ resource "aws_dynamodb_table" "screenshot_results" {
     enabled = var.enable_dynamodb_backup
   }
 
-  # Server-side encryption
+  # Server-side encryption with Customer Managed Key (CMK)
   server_side_encryption {
-    enabled = true
+    enabled     = true
+    kms_key_arn = data.terraform_remote_state.general.outputs.dynamodb_kms_key_arn
   }
 
   tags = {

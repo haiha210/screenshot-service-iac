@@ -1,5 +1,6 @@
 # Data sources
 data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
 
 # Remote state data sources
 data "terraform_remote_state" "general" {

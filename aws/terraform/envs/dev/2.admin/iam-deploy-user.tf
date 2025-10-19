@@ -36,8 +36,22 @@ resource "aws_iam_policy" "deploy" {
   }
 }
 
-# Attach Policy to User
-resource "aws_iam_user_policy_attachment" "deploy" {
-  user       = aws_iam_user.deploy.name
+# IAM Group for Deployment Users
+resource "aws_iam_group" "deploy" {
+  name = "${var.project}-${var.env}-deploy-group"
+  path = "/system/"
+}
+
+# Attach Policy to Group (not directly to user)
+resource "aws_iam_group_policy_attachment" "deploy" {
+  group      = aws_iam_group.deploy.name
   policy_arn = aws_iam_policy.deploy.arn
+}
+
+# Add User to Group
+resource "aws_iam_user_group_membership" "deploy" {
+  user = aws_iam_user.deploy.name
+  groups = [
+    aws_iam_group.deploy.name
+  ]
 }
