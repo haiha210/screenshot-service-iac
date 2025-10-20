@@ -37,6 +37,12 @@ module "screenshots_bucket" {
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
+
+  access_logging = {
+    enabled       = var.env == "prd" ? true : false
+    target_bucket = var.env == "prd" ? module.access_logs_bucket[0].bucket_id : null
+    target_prefix = "screenshots-access-logs/"
+  }
 }
 
 # Access Logs S3 Bucket (Production only)
@@ -57,14 +63,4 @@ module "access_logs_bucket" {
     noncurrent_expiration_days = 30
     incomplete_multipart_days  = 7
   }]
-}
-
-# Configure access logging for screenshots bucket
-resource "aws_s3_bucket_logging" "screenshots" {
-  count = var.env == "prd" ? 1 : 0
-
-  bucket = module.screenshots_bucket.bucket_id
-
-  target_bucket = module.access_logs_bucket[0].bucket_id
-  target_prefix = "screenshots-access-logs/"
 }
