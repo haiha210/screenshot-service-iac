@@ -31,23 +31,23 @@ variable "lifecycle_rules" {
   type = list(object({
     id     = string
     status = string
-    
+
     # Transitions
     transitions = optional(list(object({
       days          = number
       storage_class = string
     })), [])
-    
+
     # Non-current version transitions
     noncurrent_transitions = optional(list(object({
       days          = number
       storage_class = string
     })), [])
-    
+
     # Expiration
-    expiration_days = optional(number, null)
+    expiration_days            = optional(number, null)
     noncurrent_expiration_days = optional(number, null)
-    incomplete_multipart_days = optional(number, 7)
+    incomplete_multipart_days  = optional(number, 7)
   }))
   default = []
 }
@@ -75,7 +75,9 @@ variable "access_logging" {
     target_prefix = optional(string, "access-logs/")
   })
   default = {
-    enabled = false
+    enabled       = true
+    target_bucket = null # Must be provided when enabled
+    target_prefix = "access-logs/"
   }
 }
 
@@ -83,7 +85,7 @@ variable "encryption_algorithm" {
   description = "Server-side encryption algorithm"
   type        = string
   default     = "AES256"
-  
+
   validation {
     condition     = contains(["AES256", "aws:kms"], var.encryption_algorithm)
     error_message = "Encryption algorithm must be either AES256 or aws:kms."
