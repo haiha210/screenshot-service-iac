@@ -39,8 +39,8 @@ module "screenshots_bucket" {
   }
 
   access_logging = {
-    enabled       = var.env == "prd" ? true : false
-    target_bucket = var.env == "prd" ? module.access_logs_bucket[0].bucket_id : null
+    enabled       = true
+    target_bucket = module.access_logs_bucket[0].bucket_id
     target_prefix = "screenshots-access-logs/"
   }
 }
