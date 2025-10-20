@@ -593,7 +593,7 @@ terraform {
 | **CloudWatch** | Monitoring | Logs, metrics, alarms |
 | **IAM** | Access control | Least-privilege policies |
 
-### Backend Application (../screenshot-service-be)
+### Backend Application ([screenshot-service-be](https://github.com/haiha210/screenshot-service-be))
 
 | Component | Technology | Version | Purpose |
 |-----------|-----------|---------|---------|
